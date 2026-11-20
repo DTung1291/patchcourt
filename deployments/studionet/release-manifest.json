@@ -2,7 +2,8 @@
   "status": "not_deployed",
   "contract_address": null,
   "deployment_tx": null,
-  "source_commit": null,
+  "source_commit": "4d84e00c673798cd55d016f60e0e5f6c96b5e5c7",
+  "contract_source_url": "https://github.com/DTung1291/patchcourt/blob/4d84e00c673798cd55d016f60e0e5f6c96b5e5c7/contracts/patchcourt.py",
   "demo_cases": [],
   "arkhai_network": "sepolia",
   "arkhai_transactions": []

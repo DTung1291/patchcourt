@@ -1,5 +1,7 @@
 # PatchCourt
 
+Public source: https://github.com/DTung1291/patchcourt
+
 **AI-adjudicated Git escrow for Internet Court.** PatchCourt connects Arkhai
 Natural Language Agreement escrows to GenLayer consensus over immutable GitHub
 evidence.
