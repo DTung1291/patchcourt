@@ -78,8 +78,11 @@ deployed by `0xea8704…7AA1` in
 The deployed schema exposes five read methods and three consensus-backed write
 methods. A live Arkhai Sepolia escrow and commit/reveal fulfillment are recorded
 in [`deployments/sepolia/arkhai-demo.json`](deployments/sepolia/arkhai-demo.json).
-The arbitration request is pending the finalized PatchCourt verdict and relay;
-the final 45-second video then remains before mission submission.
+Case 1 reached a finalized 4/4 `APPROVED` verdict in round 2. The corrected
+oracle decision was recorded in Sepolia transaction `0xcec3da…b0ddf`, and the
+approved 1 PCT escrow was collected in `0x43f09f…82487`. The complete immutable
+execution record is in [`evidence/final-settlement.json`](evidence/final-settlement.json).
+Only the final 45-second video remains before mission submission.
 
 ## Partner sources
 

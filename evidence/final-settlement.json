@@ -1,0 +1,29 @@
+{
+  "project": "PatchCourt",
+  "status": "complete",
+  "genlayer": {
+    "contract": "0x6504cd96933D2C5E5d2cEFb9D6bcB4aAef2B2583",
+    "case_id": 1,
+    "submission_tx": "0xd0e57d059bd4f5cb8602dfb02512587748a8f31739046d5964dd691a13949694",
+    "adjudication_tx": "0x3a1e8a216cf728389508774039269538c1c2b8a3a704e6ecaf42cbd966e30ba1",
+    "evidence_commit": "38acf0c25b785634607edce3bdefb7be34ff0027",
+    "round": 2,
+    "outcome": "APPROVED",
+    "criteria": [true, true, true, true]
+  },
+  "instruction": {
+    "protocol": "arkhai-nla-v1",
+    "network": "sepolia",
+    "escrow_uid": "0x009248554fe008f0de1d2503a1763e806b5c8b5a42f52509a2422a7d6b6448ac",
+    "fulfillment_uid": "0xeac5f6b293676667e3089274b89f4ad002dd74531d33bd7c343598bbc8efbbee",
+    "decision": true,
+    "outcome": "APPROVED",
+    "round": 2
+  },
+  "arkhai_sepolia": {
+    "oracle_decision_tx": "0xcec3da3524ffb0c7fe3456cb9ebaffcafb02d6e744c6ae27afdd75d5cbbb0ddf",
+    "collect_tx": "0x43f09f4ca015b0f1625358967a83086fcb60e84cd6990a78e2d129b608082487",
+    "settlement": "1 PCT collected"
+  },
+  "note": "An earlier oracle transaction used the encoded outer demand as its key. It did not satisfy the escrow check and transferred no funds. The regression-tested relay decodes the inner demand context before recording the final decision."
+}

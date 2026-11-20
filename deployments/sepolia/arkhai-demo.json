@@ -16,6 +16,18 @@
     "escrow_create": "0xebc4cf3ecc4bd5143ca70a4f45a8007ded2d812030b53d6abde60dc58d9f9b7c",
     "fulfillment_commit": "0xca2e1277d921f000e0a42cd1eb576e92f261795646ac79ae66e0528b8c500f2f",
     "fulfillment_reveal": "0xb351c6284601085065b7a8b4c16ad4248b2678dcec3bff01ee9bb62825ce6d71",
-    "arbitration_request": "0xde9b6c03a36161482285daa9d3e751286503dc6c10476af64e4a17f7037498b2"
+    "arbitration_request": "0xde9b6c03a36161482285daa9d3e751286503dc6c10476af64e4a17f7037498b2",
+    "oracle_decision_superseded_wrong_context": "0x80fbbde01d90afc940f103030a64ccb91ed4e46e5940be5cb7a240684bfca875",
+    "oracle_decision": "0xcec3da3524ffb0c7fe3456cb9ebaffcafb02d6e744c6ae27afdd75d5cbbb0ddf",
+    "escrow_collect": "0x43f09f4ca015b0f1625358967a83086fcb60e84cd6990a78e2d129b608082487"
+  },
+  "settlement": {
+    "genlayer_case_id": 1,
+    "genlayer_outcome": "APPROVED",
+    "genlayer_round": 2,
+    "genlayer_commit_sha": "38acf0c25b785634607edce3bdefb7be34ff0027",
+    "decision": true,
+    "status": "collected",
+    "amount": "1 PCT"
   }
 }

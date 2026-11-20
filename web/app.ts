@@ -5,6 +5,7 @@ import { makeCommitRevealObligationClient, pickCommitRevealAddresses } from '../
 import { makeTrustedOracleArbiterClient } from '../node_modules/alkahest-ts/sdks/ts/src/clients/arbiters/general/trustedOracle'
 import { getAttestation } from '../node_modules/alkahest-ts/sdks/ts/src/utils'
 import MockERC20Permit from '../node_modules/alkahest-ts/sdks/ts/tests/fixtures/MockERC20Permit.json'
+import { oracleDecisionContext } from '../src/arkhai-demand'
 import {
   createWalletClient, custom, encodeAbiParameters, formatEther, keccak256,
   parseAbi, parseAbiParameters, publicActions, toHex, type Address, type Hex,
@@ -190,8 +191,12 @@ $<HTMLButtonElement>('arbitrate').onclick = buttonEvent(async () => {
   const escrow = await getAttestation(wallet, escrowUid(), contractAddresses.Sepolia)
   const decoded = escrowClient.decodeObligation(escrow.data)
   const decision = $<HTMLSelectElement>('decision').value === 'true'
+  // TrustedOracleArbiter.check decodes the escrow's outer DemandData and
+  // hashes its inner `data` field. Manual arbitration must therefore record
+  // the decision against that same inner context, not the encoded wrapper.
+  const innerDemand = oracleDecisionContext(decoded.demand)
   log(`Confirm the finalized ${decision ? 'APPROVED' : 'REJECTED'} decision in OKX.`)
-  const hash = await oracleClient.arbitrate(state.fulfillmentUid, decoded.demand, decision)
+  const hash = await oracleClient.arbitrate(state.fulfillmentUid, innerDemand, decision)
   await wallet.waitForTransactionReceipt({ hash })
   log('Oracle decision recorded on Arkhai.', { decision, tx: hash })
 })
