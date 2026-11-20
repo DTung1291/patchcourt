@@ -42,7 +42,7 @@ The second command is a dry-run and does not submit a transaction.
 6. Dry-run the exact instruction:
 
 ```bash
-bun run bridge -- --contract 0xPATCHCOURT --case-id 1
+bun run bridge -- --contract 0x6504cd96933D2C5E5d2cEFb9D6bcB4aAef2B2583 --case-id 1
 ```
 
 7. After explicit user approval, repeat with `--execute`.

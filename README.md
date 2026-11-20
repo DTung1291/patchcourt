@@ -37,7 +37,7 @@ CLI and an oracle wallet:
 ```bash
 npm install -g nla
 nla network
-bun run bridge -- --contract 0xPATCHCOURT --case-id 1
+bun run bridge -- --contract 0x6504cd96933D2C5E5d2cEFb9D6bcB4aAef2B2583 --case-id 1
 # Review the latest-final instruction, then explicitly add --execute.
 ```
 
@@ -50,13 +50,17 @@ bun run bridge -- --contract 0xPATCHCOURT --case-id 1
 - `docs/architecture.md` — trust and data-flow boundaries.
 - `docs/threat-model.md` — attacks and fail-closed behavior.
 - `docs/demo-script.md` — polished 45-second video storyboard.
-- `deployments/studionet/release-manifest.json` — honest deployment evidence; currently not deployed.
+- `deployments/studionet/release-manifest.json` — immutable source and finalized deployment evidence.
 
 ## Status
 
-The contract, bridge, local tests, skill and demo plan are implemented. StudioNet
-deployment, live Arkhai Sepolia escrow transactions and the final video remain
-before mission submission.
+The contract is finalized on StudioNet at
+[`0x6504…2583`](https://explorer-studio.genlayer.com/address/0x6504cd96933D2C5E5d2cEFb9D6bcB4aAef2B2583),
+deployed by `0xea8704…7AA1` in
+[`0xfda252…590e`](https://explorer-studio.genlayer.com/tx/0xfda25293d7dac8e7cc6cfea12109db477e53c4ad1c3c9b4696c922dd5cbf590e).
+The deployed schema exposes five read methods and three consensus-backed write
+methods. Live Arkhai Sepolia escrow transactions and the final 45-second video
+remain before mission submission.
 
 ## Partner sources
 
