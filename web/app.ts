@@ -93,6 +93,9 @@ $<HTMLButtonElement>('deployToken').onclick = buttonEvent(async () => {
     abi: MockERC20Permit.abi,
     bytecode: MockERC20Permit.bytecode.object as Hex,
     args: ['PatchCourt Test Token', 'PCT'], account,
+    // OKX Sepolia occasionally fails its own estimate for contract creation.
+    // Public-RPC simulation is ~5.50M gas; this explicit ceiling remains fail-safe.
+    gas: 6_000_000n,
   })
   log('Token deployment submitted.', hash)
   const receipt = await wallet.waitForTransactionReceipt({ hash })
