@@ -15,5 +15,16 @@
     "Connect OKX on Ethereum Sepolia and execute the numbered flow."
   ],
   "genlayer_contract": "0x6504cd96933D2C5E5d2cEFb9D6bcB4aAef2B2583",
+  "arkhai_sepolia": {
+    "token": "0x2a7328b1072a421accd472285c20ba81078c48ad",
+    "escrow_uid": "0x009248554fe008f0de1d2503a1763e806b5c8b5a42f52509a2422a7d6b6448ac",
+    "fulfillment_uid": "0xeac5f6b293676667e3089274b89f4ad002dd74531d33bd7c343598bbc8efbbee",
+    "token_deploy_tx": "0x1d2363f88bbb6d3571f249ce3d54af406a59c445a6f5c1f2bd9d08543020803a",
+    "approval_tx": "0x1273521ef22987fc031338bdd3e191d7bfcfb3e37022773644b232c306fb0ab9",
+    "escrow_tx": "0xebc4cf3ecc4bd5143ca70a4f45a8007ded2d812030b53d6abde60dc58d9f9b7c",
+    "commit_tx": "0xca2e1277d921f000e0a42cd1eb576e92f261795646ac79ae66e0528b8c500f2f",
+    "reveal_tx": "0xb351c6284601085065b7a8b4c16ad4248b2678dcec3bff01ee9bb62825ce6d71",
+    "arbitration_request_tx": "0xde9b6c03a36161482285daa9d3e751286503dc6c10476af64e4a17f7037498b2"
+  },
   "source": "https://github.com/DTung1291/patchcourt"
 }

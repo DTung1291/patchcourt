@@ -1,0 +1,21 @@
+{
+  "network": "Ethereum Sepolia",
+  "chain_id": 11155111,
+  "signer_and_oracle": "0xea87042798eA7b256dB8795608a317857Be97AA1",
+  "contracts": {
+    "pct_token": "0x2a7328b1072a421accd472285c20ba81078c48ad",
+    "alkahest_erc20_escrow": "0x6bcec91a89A63D50368BCe54Cb9eD0399992C18b",
+    "alkahest_commit_reveal": "0x931b35F81e7A585317f8cF8B45795F403EEfe468",
+    "alkahest_trusted_oracle": "0x61dC9c2D757A1C9D0d38A281288d9ef918e77Baa"
+  },
+  "escrow_uid": "0x009248554fe008f0de1d2503a1763e806b5c8b5a42f52509a2422a7d6b6448ac",
+  "fulfillment_uid": "0xeac5f6b293676667e3089274b89f4ad002dd74531d33bd7c343598bbc8efbbee",
+  "transactions": {
+    "token_deploy": "0x1d2363f88bbb6d3571f249ce3d54af406a59c445a6f5c1f2bd9d08543020803a",
+    "token_approval": "0x1273521ef22987fc031338bdd3e191d7bfcfb3e37022773644b232c306fb0ab9",
+    "escrow_create": "0xebc4cf3ecc4bd5143ca70a4f45a8007ded2d812030b53d6abde60dc58d9f9b7c",
+    "fulfillment_commit": "0xca2e1277d921f000e0a42cd1eb576e92f261795646ac79ae66e0528b8c500f2f",
+    "fulfillment_reveal": "0xb351c6284601085065b7a8b4c16ad4248b2678dcec3bff01ee9bb62825ce6d71",
+    "arbitration_request": "0xde9b6c03a36161482285daa9d3e751286503dc6c10476af64e4a17f7037498b2"
+  }
+}

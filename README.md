@@ -76,9 +76,10 @@ The contract is finalized on StudioNet at
 deployed by `0xea8704…7AA1` in
 [`0xfda252…590e`](https://explorer-studio.genlayer.com/tx/0xfda25293d7dac8e7cc6cfea12109db477e53c4ad1c3c9b4696c922dd5cbf590e).
 The deployed schema exposes five read methods and three consensus-backed write
-methods. The OKX Sepolia execution console is implemented and verified locally.
-Live Arkhai transaction evidence and the final 45-second video remain before
-mission submission.
+methods. A live Arkhai Sepolia escrow and commit/reveal fulfillment are recorded
+in [`deployments/sepolia/arkhai-demo.json`](deployments/sepolia/arkhai-demo.json).
+The arbitration request is pending the finalized PatchCourt verdict and relay;
+the final 45-second video then remains before mission submission.
 
 ## Partner sources
 
