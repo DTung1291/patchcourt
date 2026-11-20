@@ -1,0 +1,9 @@
+{
+  "status": "not_deployed",
+  "contract_address": null,
+  "deployment_tx": null,
+  "source_commit": null,
+  "demo_cases": [],
+  "arkhai_network": "sepolia",
+  "arkhai_transactions": []
+}

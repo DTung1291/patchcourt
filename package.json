@@ -1,0 +1,20 @@
+{
+  "name": "patchcourt",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "bridge": "bun run src/bridge.ts",
+    "test:bridge": "bun test tests/bridge.test.ts",
+    "test": "./scripts/check.sh && bun run test:bridge",
+    "typecheck": "tsc --noEmit",
+    "check": "bun run test && bun run typecheck"
+  },
+  "dependencies": {
+    "genlayer-js": "1.1.8"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.7.3"
+  }
+}

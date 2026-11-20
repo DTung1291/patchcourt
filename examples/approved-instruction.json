@@ -1,0 +1,11 @@
+{
+  "protocol": "arkhai-nla-v1",
+  "network": "sepolia",
+  "escrow_uid": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+  "fulfillment_uid": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+  "decision": true,
+  "outcome": "APPROVED",
+  "case_id": 1,
+  "round": 1,
+  "commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+}
