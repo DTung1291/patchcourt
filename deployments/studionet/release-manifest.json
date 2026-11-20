@@ -10,7 +10,17 @@
   "transaction_explorer_url": "https://explorer-studio.genlayer.com/tx/0xfda25293d7dac8e7cc6cfea12109db477e53c4ad1c3c9b4696c922dd5cbf590e",
   "source_commit": "4d84e00c673798cd55d016f60e0e5f6c96b5e5c7",
   "contract_source_url": "https://github.com/DTung1291/patchcourt/blob/4d84e00c673798cd55d016f60e0e5f6c96b5e5c7/contracts/patchcourt.py",
-  "demo_cases": [],
+  "demo_cases": [
+    {
+      "case_id": 1,
+      "create_tx": "0x0a8299b978ae061f2ccec24e2f5be5bae6dd0fd67668931394c6dadf15ee3cc0",
+      "round_1_submission_tx": "0x83e0d9fc40e6f2b9cdc087719b621fb733d25945a7682caf69b499a4da5ae150",
+      "round_1_adjudication_tx": "0x462bb0ea4eed5afeb6f42524df59e36b0b576e5b6a6c10217829ca4ebeb8b37c",
+      "round_1_outcome": "INCONCLUSIVE",
+      "round_1_post_state": "REVISION_REQUIRED",
+      "round_1_evidence_commit": "dc64a009a6be13cd51d0f3084ae9c21da223c72e"
+    }
+  ],
   "arkhai_network": "sepolia",
   "arkhai_transactions": []
 }

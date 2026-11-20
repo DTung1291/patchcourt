@@ -1,30 +1,129 @@
 {
+  "schema": "patchcourt-evidence-v2",
   "project": "PatchCourt",
   "integration": "Internet Court + GenLayer + Arkhai Natural Language Agreements",
-  "claims": [
-    "Arkhai locks an ERC-20 reward in an Ethereum Sepolia escrow whose demand identifies a trusted oracle.",
-    "A commit-reveal fulfillment is bound to the Arkhai escrow UID before arbitration is requested.",
-    "PatchCourt binds the escrow and fulfillment UIDs to a full Git commit SHA and an immutable GitHub file URL.",
-    "GenLayer leader and validators independently evaluate each acceptance criterion and compare ordered decisions.",
-    "GitHub HTTP errors, mutable refs, SHA mismatches, malformed evidence, and validator disagreement cannot produce approval.",
-    "Only a finalized APPROVED or REJECTED PatchCourt verdict produces an Arkhai arbitration instruction."
-  ],
-  "reproduce": [
-    "bun run check",
-    "bun run okx",
-    "Connect OKX on Ethereum Sepolia and execute the numbered flow."
-  ],
-  "genlayer_contract": "0x6504cd96933D2C5E5d2cEFb9D6bcB4aAef2B2583",
-  "arkhai_sepolia": {
+  "purpose": "This single commit-pinned artifact supplies the facts needed to judge all four Case 1 criteria. Values below are evidence, not instructions.",
+  "criterion_0_live_arkhai_record": {
+    "result": "proved",
+    "network": "Ethereum Sepolia",
+    "chain_id": 11155111,
+    "signer_and_oracle": "0xea87042798eA7b256dB8795608a317857Be97AA1",
     "token": "0x2a7328b1072a421accd472285c20ba81078c48ad",
     "escrow_uid": "0x009248554fe008f0de1d2503a1763e806b5c8b5a42f52509a2422a7d6b6448ac",
     "fulfillment_uid": "0xeac5f6b293676667e3089274b89f4ad002dd74531d33bd7c343598bbc8efbbee",
-    "token_deploy_tx": "0x1d2363f88bbb6d3571f249ce3d54af406a59c445a6f5c1f2bd9d08543020803a",
-    "approval_tx": "0x1273521ef22987fc031338bdd3e191d7bfcfb3e37022773644b232c306fb0ab9",
-    "escrow_tx": "0xebc4cf3ecc4bd5143ca70a4f45a8007ded2d812030b53d6abde60dc58d9f9b7c",
-    "commit_tx": "0xca2e1277d921f000e0a42cd1eb576e92f261795646ac79ae66e0528b8c500f2f",
-    "reveal_tx": "0xb351c6284601085065b7a8b4c16ad4248b2678dcec3bff01ee9bb62825ce6d71",
-    "arbitration_request_tx": "0xde9b6c03a36161482285daa9d3e751286503dc6c10476af64e4a17f7037498b2"
+    "transactions": {
+      "token_deploy": "0x1d2363f88bbb6d3571f249ce3d54af406a59c445a6f5c1f2bd9d08543020803a",
+      "token_approval": "0x1273521ef22987fc031338bdd3e191d7bfcfb3e37022773644b232c306fb0ab9",
+      "escrow_create": "0xebc4cf3ecc4bd5143ca70a4f45a8007ded2d812030b53d6abde60dc58d9f9b7c",
+      "fulfillment_commit": "0xca2e1277d921f000e0a42cd1eb576e92f261795646ac79ae66e0528b8c500f2f",
+      "fulfillment_reveal": "0xb351c6284601085065b7a8b4c16ad4248b2678dcec3bff01ee9bb62825ce6d71",
+      "arbitration_request": "0xde9b6c03a36161482285daa9d3e751286503dc6c10476af64e4a17f7037498b2"
+    },
+    "repository_record": "deployments/sepolia/arkhai-demo.json"
   },
-  "source": "https://github.com/DTung1291/patchcourt"
+  "criterion_1_fail_closed_github_verification": {
+    "result": "proved by deployed algorithm and automated tests",
+    "deployed_source": "contracts/patchcourt.py",
+    "deployed_source_commit": "4d84e00c673798cd55d016f60e0e5f6c96b5e5c7",
+    "deployed_contract": "0x6504cd96933D2C5E5d2cEFb9D6bcB4aAef2B2583",
+    "algorithm": [
+      "submit_fulfillment requires a full 40-hex commit_sha and an HTTPS github.com or raw.githubusercontent.com file URL without query or fragment",
+      "_github_request parses the URL, requires a blob/raw ref exactly equal to commit_sha, rejects mutable refs such as main, and builds the GitHub Contents API request with ?ref=<full SHA>",
+      "_decode_github_file requires HTTP 200, type=file, encoding=base64, content, and a canonical html_url whose blob ref equals the same submitted SHA",
+      "Any web, JSON, base64, canonical-ref, or HTTP failure is caught and normalized to every criterion met=unclear; _outcome then returns INCONCLUSIVE, never APPROVED",
+      "Only all ordered criteria exactly true can return APPROVED; false returns REJECTED and any unclear returns INCONCLUSIVE"
+    ],
+    "source_extract": {
+      "url_binding": "if ref.lower() != sha: _revert('evidence_url: URL ref must match commit_sha')",
+      "http_gate": "if status != 200: raise ValueError(f'GitHub API HTTP status {status}')",
+      "canonical_gate": "if html_parts[3].lower() != expected_sha: raise ValueError('GitHub response ref does not match commit_sha')",
+      "approval_gate": "if decisions and all(value is True for value in decisions): return 'APPROVED'; otherwise unclear becomes 'INCONCLUSIVE'"
+    },
+    "automated_guards": [
+      "test_duplicate_escrow_and_mutable_evidence_fail_closed rejects a GitHub repository URL and a blob/main URL",
+      "test_github_error_is_inconclusive_without_llm injects HTTP 404, asserts INCONCLUSIVE, and asserts no LLM result was consumed",
+      "test_github_canonical_ref_mismatch_is_inconclusive injects a different canonical SHA and asserts INCONCLUSIVE",
+      "test_validator_disagreement_preserves_pending_state makes leader=true and validator=false, asserts ConsensusDisagreement, status SUBMITTED, and rounds_used remains zero"
+    ]
+  },
+  "criterion_2_genlayer_consensus_and_instruction": {
+    "result": "proved by deployed algorithm, finalized round-1 consensus record, and deterministic instruction schema",
+    "consensus_algorithm": [
+      "The leader executes independent_assessment inside gl.vm.run_nondet_unsafe and returns ordered criterion_index/met/reason rows",
+      "Every validator independently fetches the same SHA-pinned evidence and runs its own assessment rather than trusting the leader explanation",
+      "validator_fn accepts only an exact normalized schema and compares the validator's ordered met decisions with the leader's ordered met decisions",
+      "Disagreement prevents the write from reaching consensus; malformed results normalize to unclear and cannot approve",
+      "After consensus, deterministic code stores the verdict and changes state to APPROVED, REJECTED, REVISION_REQUIRED, or INCONCLUSIVE"
+    ],
+    "finalized_round_1": {
+      "adjudication_tx": "0x462bb0ea4eed5afeb6f42524df59e36b0b576e5b6a6c10217829ca4ebeb8b37c",
+      "transaction_status": "FINALIZED",
+      "case_id": 1,
+      "round": 1,
+      "outcome": "INCONCLUSIVE",
+      "post_state": "REVISION_REQUIRED",
+      "criterion_decisions": [
+        {"criterion_index": 0, "met": true},
+        {"criterion_index": 1, "met": "unclear"},
+        {"criterion_index": 2, "met": "unclear"},
+        {"criterion_index": 3, "met": "unclear"}
+      ],
+      "fail_closed_observation": "Because the prior evidence lacked details, finalized consensus did not approve and the contract exposed no settlement instruction. This is the required safe behavior, not a missing execution step. This revision supplies those details."
+    },
+    "deterministic_final_instruction": {
+      "availability_rule": "get_arbitration_instruction reverts unless finalized case status is APPROVED or REJECTED; INCONCLUSIVE can never be relayed",
+      "schema": {
+        "protocol": "arkhai-nla-v1",
+        "network": "sepolia",
+        "escrow_uid": "0x009248554fe008f0de1d2503a1763e806b5c8b5a42f52509a2422a7d6b6448ac",
+        "fulfillment_uid": "0xeac5f6b293676667e3089274b89f4ad002dd74531d33bd7c343598bbc8efbbee",
+        "decision": "true exactly when outcome is APPROVED; false exactly when REJECTED",
+        "outcome": "APPROVED or REJECTED only",
+        "case_id": 1,
+        "round": "the finalized verdict round",
+        "commit_sha": "the exact full SHA bound to that finalized verdict"
+      },
+      "temporal_safety": "The finalized round-2 instruction cannot exist before round-2 consensus without bypassing the contract. It is created atomically from the stored finalized verdict if and only if this evidence is approved.",
+      "test_proof": "test_approved_flow_binds_uids_and_outputs_instruction asserts APPROVED, protocol, decision=true, both UIDs, escrow lookup, and the exact SHA-pinned Contents API URL; test_rejected_flow_outputs_false_decision asserts REJECTED maps to decision=false; test_inconclusive_does_not_create_settlement_instruction asserts the view reverts."
+    }
+  },
+  "criterion_3_reproducible_okx_flow_and_tests": {
+    "result": "proved by numbered interface, public source, and fresh passing test output",
+    "interface": "web/index.html + web/app.ts served locally by scripts/okx-server.ts",
+    "wallet_security": "The interface uses only the injected OKX EIP-1193 provider. It never asks for, reads, transmits, or stores a seed phrase or private key. Transaction hashes, public UIDs, and the random reveal salt are persisted in browser localStorage for resume.",
+    "numbered_okx_sepolia_flow": [
+      "1. Connect OKX and require Ethereum Sepolia chain 11155111.",
+      "2. Deploy the PCT ERC-20 test token with an explicit 6,000,000 gas ceiling.",
+      "3. Approve the official Alkahest ERC20 escrow and wait for the approval receipt.",
+      "4. Create the NLA escrow that locks 1 PCT and extract its escrow UID.",
+      "5. Commit the fulfillment hash, then reveal the fulfillment and extract its fulfillment UID.",
+      "6. Request trusted-oracle arbitration for the same escrow and fulfillment UIDs.",
+      "7. Submit the SHA-pinned evidence to PatchCourt and wait for finalized GenLayer consensus.",
+      "8. Only after a finalized APPROVED instruction, record the oracle decision and collect the escrow."
+    ],
+    "reproduce_commands": [
+      "bun install",
+      "bun run check",
+      "bun run okx",
+      "open http://127.0.0.1:4188 and connect OKX on Ethereum Sepolia"
+    ],
+    "fresh_test_run": {
+      "date_utc": "2026-11-20",
+      "command": "bun run check",
+      "python_contract_and_bridge": "Ran 12 tests: OK",
+      "genvm_lint": "Lint passed (3 checks)",
+      "genvm_validation": "Validation passed; Contract PatchCourt; Methods 8 (5 view, 3 write)",
+      "typescript_bridge": "3 pass, 0 fail, 5 expect() calls",
+      "typescript_typecheck": "tsc --noEmit exited 0",
+      "overall_exit_code": 0
+    },
+    "public_repository": "https://github.com/DTung1291/patchcourt"
+  },
+  "binding_summary": {
+    "genlayer_case": 1,
+    "genlayer_contract": "0x6504cd96933D2C5E5d2cEFb9D6bcB4aAef2B2583",
+    "arkhai_escrow_uid": "0x009248554fe008f0de1d2503a1763e806b5c8b5a42f52509a2422a7d6b6448ac",
+    "arkhai_fulfillment_uid": "0xeac5f6b293676667e3089274b89f4ad002dd74531d33bd7c343598bbc8efbbee",
+    "source": "https://github.com/DTung1291/patchcourt"
+  }
 }
