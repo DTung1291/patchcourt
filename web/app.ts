@@ -7,7 +7,7 @@ import { getAttestation } from '../node_modules/alkahest-ts/sdks/ts/src/utils'
 import MockERC20Permit from '../node_modules/alkahest-ts/sdks/ts/tests/fixtures/MockERC20Permit.json'
 import {
   createWalletClient, custom, encodeAbiParameters, formatEther, keccak256,
-  parseAbiParameters, publicActions, toHex, type Address, type Hex,
+  parseAbi, parseAbiParameters, publicActions, toHex, type Address, type Hex,
 } from 'viem'
 import { sepolia } from 'viem/chains'
 
@@ -115,8 +115,27 @@ $<HTMLButtonElement>('createEscrow').onclick = buttonEvent(async () => {
   )
   const outer = oracleClient.encodeDemand({ oracle, data: inner })
   state.demand = outer
-  log('Confirm token approval and then escrow creation in OKX (two transactions).')
-  const result = await escrowClient.permitAndCreate(
+  const amount = 10n ** 18n
+  const spender = contractAddresses.Sepolia.erc20EscrowObligation
+  const erc20 = parseAbi([
+    'function allowance(address owner,address spender) view returns (uint256)',
+    'function approve(address spender,uint256 amount) returns (bool)',
+  ])
+  const allowance = await wallet.readContract({
+    address: token, abi: erc20, functionName: 'allowance', args: [account, spender],
+  })
+  if (allowance < amount) {
+    log('Confirm approval of exactly 1 PCT in OKX.')
+    const approvalHash = await wallet.writeContract({
+      address: token, abi: erc20, functionName: 'approve', args: [spender, amount], account,
+    })
+    await wallet.waitForTransactionReceipt({ hash: approvalHash })
+    log('1 PCT approval finalized before escrow creation.', { tx: approvalHash })
+  } else {
+    log('Existing 1 PCT allowance verified; no additional approval requested.')
+  }
+  log('Confirm Arkhai escrow creation in OKX.')
+  const result = await escrowClient.create(
     { address: token, value: 10n ** 18n },
     { arbiter: contractAddresses.Sepolia.trustedOracleArbiter, demand: outer },
     0n,
