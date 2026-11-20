@@ -1,0 +1,19 @@
+{
+  "project": "PatchCourt",
+  "integration": "Internet Court + GenLayer + Arkhai Natural Language Agreements",
+  "claims": [
+    "Arkhai locks an ERC-20 reward in an Ethereum Sepolia escrow whose demand identifies a trusted oracle.",
+    "A commit-reveal fulfillment is bound to the Arkhai escrow UID before arbitration is requested.",
+    "PatchCourt binds the escrow and fulfillment UIDs to a full Git commit SHA and an immutable GitHub file URL.",
+    "GenLayer leader and validators independently evaluate each acceptance criterion and compare ordered decisions.",
+    "GitHub HTTP errors, mutable refs, SHA mismatches, malformed evidence, and validator disagreement cannot produce approval.",
+    "Only a finalized APPROVED or REJECTED PatchCourt verdict produces an Arkhai arbitration instruction."
+  ],
+  "reproduce": [
+    "bun run check",
+    "bun run okx",
+    "Connect OKX on Ethereum Sepolia and execute the numbered flow."
+  ],
+  "genlayer_contract": "0x6504cd96933D2C5E5d2cEFb9D6bcB4aAef2B2583",
+  "source": "https://github.com/DTung1291/patchcourt"
+}

@@ -31,6 +31,23 @@ bun install
 bun test
 ```
 
+### OKX browser-wallet flow
+
+The reproducible Sepolia interface signs exclusively through the OKX injected
+provider. It never accepts, reads or stores a seed phrase or private key.
+
+```bash
+bun install
+bun run okx
+# Open http://127.0.0.1:4188 and enable OKX site access.
+```
+
+The numbered interface deploys an Alkahest test ERC-20, creates the NLA escrow,
+runs commit/reveal fulfillment, requests arbitration, records the finalized
+PatchCourt decision and collects an approved escrow. Flow identifiers and the
+random reveal salt stay in browser local storage so a wallet reload can resume
+safely.
+
 The bridge is dry-run by default. Live relay requires the official Arkhai `nla`
 CLI and an oracle wallet:
 
@@ -59,8 +76,9 @@ The contract is finalized on StudioNet at
 deployed by `0xea8704…7AA1` in
 [`0xfda252…590e`](https://explorer-studio.genlayer.com/tx/0xfda25293d7dac8e7cc6cfea12109db477e53c4ad1c3c9b4696c922dd5cbf590e).
 The deployed schema exposes five read methods and three consensus-backed write
-methods. Live Arkhai Sepolia escrow transactions and the final 45-second video
-remain before mission submission.
+methods. The OKX Sepolia execution console is implemented and verified locally.
+Live Arkhai transaction evidence and the final 45-second video remain before
+mission submission.
 
 ## Partner sources
 

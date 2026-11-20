@@ -5,13 +5,16 @@
   "type": "module",
   "scripts": {
     "bridge": "bun run src/bridge.ts",
+    "okx": "bun run scripts/okx-server.ts",
     "test:bridge": "bun test tests/bridge.test.ts",
     "test": "./scripts/check.sh && bun run test:bridge",
     "typecheck": "tsc --noEmit",
     "check": "bun run test && bun run typecheck"
   },
   "dependencies": {
-    "genlayer-js": "1.1.8"
+    "alkahest-ts": "https://github.com/arkhai-io/alkahest/archive/6e0fa2b9b8565daa4173d2e166d05ec5f4f42fbc.tar.gz",
+    "genlayer-js": "1.1.8",
+    "viem": "^2.42.1"
   },
   "devDependencies": {
     "@types/bun": "latest",

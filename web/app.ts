@@ -1,0 +1,186 @@
+import { contractAddresses } from '../node_modules/alkahest-ts/sdks/ts/src/config'
+import { makeErc20DefaultEscrowClient } from '../node_modules/alkahest-ts/sdks/ts/src/clients/obligations/erc20/escrow/default'
+import { pickErc20Addresses } from '../node_modules/alkahest-ts/sdks/ts/src/clients/obligations/erc20'
+import { makeCommitRevealObligationClient, pickCommitRevealAddresses } from '../node_modules/alkahest-ts/sdks/ts/src/clients/obligations/commitReveal'
+import { makeTrustedOracleArbiterClient } from '../node_modules/alkahest-ts/sdks/ts/src/clients/arbiters/general/trustedOracle'
+import { getAttestation } from '../node_modules/alkahest-ts/sdks/ts/src/utils'
+import MockERC20Permit from '../node_modules/alkahest-ts/sdks/ts/tests/fixtures/MockERC20Permit.json'
+import {
+  createWalletClient, custom, encodeAbiParameters, formatEther, keccak256,
+  parseAbiParameters, publicActions, toHex, type Address, type Hex,
+} from 'viem'
+import { sepolia } from 'viem/chains'
+
+type Provider = { request(args: { method: string; params?: unknown[] | object }): Promise<unknown>; isOkxWallet?: boolean }
+type FlowState = {
+  token?: Address; escrowUid?: Hex; fulfillmentUid?: Hex; commitment?: Hex;
+  salt?: Hex; schema?: Hex; payload?: Hex; commitTx?: Hex; demand?: Hex;
+}
+
+declare global { interface Window { okxwallet?: Provider; ethereum?: Provider & { providers?: Provider[] } } }
+
+const STORAGE = 'patchcourt-okx-sepolia-v1'
+const state: FlowState = JSON.parse(localStorage.getItem(STORAGE) ?? '{}')
+const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T
+const logEl = $<HTMLPreElement>('log')
+let wallet: any
+let escrowClient: any
+let commitClient: any
+let oracleClient: any
+let account: Address | undefined
+
+function save() { localStorage.setItem(STORAGE, JSON.stringify(state)); hydrate() }
+function hydrate() {
+  if (state.token) $<HTMLInputElement>('token').value = state.token
+  if (state.escrowUid) {
+    $<HTMLElement>('escrowUid').textContent = state.escrowUid
+    $<HTMLInputElement>('fulfillEscrow').value = state.escrowUid
+  }
+  if (state.fulfillmentUid) $<HTMLElement>('fulfillmentUid').textContent = state.fulfillmentUid
+}
+function log(message: string, value?: unknown) {
+  const stamp = new Date().toLocaleTimeString()
+  const detail = value === undefined ? '' : `\n${typeof value === 'string' ? value : JSON.stringify(value, (_, v) => typeof v === 'bigint' ? v.toString() : v, 2)}`
+  logEl.textContent = `[${stamp}] ${message}${detail}\n\n${logEl.textContent}`
+}
+function provider(): Provider {
+  const found = window.okxwallet ?? window.ethereum?.providers?.find(item => item.isOkxWallet)
+  if (!found) throw new Error('OKX Wallet was not detected. Enable its site access and reload.')
+  return found
+}
+async function connect() {
+  const injected = provider()
+  await injected.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0xaa36a7' }] })
+  const accounts = await injected.request({ method: 'eth_requestAccounts' }) as Address[]
+  if (!accounts[0]) throw new Error('OKX returned no account.')
+  account = accounts[0]
+  wallet = createWalletClient({ account, chain: sepolia, transport: custom(injected) }).extend(publicActions)
+  const addresses = contractAddresses.Sepolia
+  escrowClient = makeErc20DefaultEscrowClient(wallet, pickErc20Addresses(addresses))
+  commitClient = makeCommitRevealObligationClient(wallet, pickCommitRevealAddresses(addresses))
+  oracleClient = makeTrustedOracleArbiterClient(wallet, addresses)
+  const balance = await wallet.getBalance({ address: account })
+  $('account').textContent = account
+  $('balance').textContent = `${Number(formatEther(balance)).toFixed(6)} ETH`
+  const oracle = $<HTMLInputElement>('oracle')
+  if (!oracle.value) oracle.value = account
+  log('Connected OKX on Ethereum Sepolia.', { account })
+}
+function ready() {
+  if (!wallet || !escrowClient || !commitClient || !oracleClient || !account) throw new Error('Connect OKX first.')
+  return { wallet, escrowClient, commitClient, oracleClient, account }
+}
+async function busy(button: HTMLButtonElement, task: () => Promise<void>) {
+  button.disabled = true
+  try { await task() } catch (error) { log('ERROR', error instanceof Error ? error.message : String(error)) }
+  finally { button.disabled = false }
+}
+function value(id: string) {
+  const result = ($<HTMLInputElement | HTMLTextAreaElement>(id).value ?? '').trim()
+  if (!result) throw new Error(`${id} is required.`)
+  return result
+}
+function escrowUid(): Hex { return value('fulfillEscrow') as Hex }
+function buttonEvent(task: () => Promise<void>) {
+  return (event: MouseEvent) => busy(event.currentTarget as HTMLButtonElement, task)
+}
+
+$<HTMLButtonElement>('connect').onclick = buttonEvent(connect)
+$<HTMLButtonElement>('deployToken').onclick = buttonEvent(async () => {
+  const { wallet, account } = ready()
+  log('Confirm the PCT test-token deployment in OKX.')
+  const hash = await wallet.deployContract({
+    abi: MockERC20Permit.abi,
+    bytecode: MockERC20Permit.bytecode.object as Hex,
+    args: ['PatchCourt Test Token', 'PCT'], account,
+  })
+  log('Token deployment submitted.', hash)
+  const receipt = await wallet.waitForTransactionReceipt({ hash })
+  if (!receipt.contractAddress) throw new Error('Deployment receipt has no contract address.')
+  state.token = receipt.contractAddress
+  save()
+  log('PCT token deployed and test supply minted.', { token: state.token, tx: hash })
+})
+$<HTMLButtonElement>('createEscrow').onclick = buttonEvent(async () => {
+  const { escrowClient, oracleClient, account } = ready()
+  const token = value('token') as Address
+  const oracle = (value('oracle') || account) as Address
+  const arbitrationPrompt = 'PatchCourt GenLayer validators evaluate immutable GitHub evidence against every acceptance criterion. Demand: {{demand}} Fulfillment: {{obligation}}'
+  const inner = encodeAbiParameters(
+    parseAbiParameters('(string arbitrationProvider, string arbitrationModel, string arbitrationPrompt, string demand)'),
+    [{ arbitrationProvider: 'GenLayer', arbitrationModel: 'PatchCourt consensus', arbitrationPrompt, demand: value('demand') }],
+  )
+  const outer = oracleClient.encodeDemand({ oracle, data: inner })
+  state.demand = outer
+  log('Confirm token approval and then escrow creation in OKX (two transactions).')
+  const result = await escrowClient.permitAndCreate(
+    { address: token, value: 10n ** 18n },
+    { arbiter: contractAddresses.Sepolia.trustedOracleArbiter, demand: outer },
+    0n,
+  )
+  state.token = token
+  state.escrowUid = result.attested.uid
+  save()
+  log('Arkhai NLA escrow created.', { escrowUid: state.escrowUid, tx: result.hash })
+})
+$<HTMLButtonElement>('commit').onclick = buttonEvent(async () => {
+  const { commitClient, account } = ready()
+  state.schema = keccak256(toHex('{item:string}'))
+  state.salt = keccak256(toHex(crypto.randomUUID()))
+  state.payload = toHex(value('fulfillment'))
+  state.commitment = await commitClient.computeCommitment(escrowUid(), account, {
+    payload: state.payload, salt: state.salt, schema: state.schema,
+  })
+  log('Confirm the 1-wei commit/reveal bond in OKX.')
+  const { hash } = await commitClient.commit(state.commitment, 1n, 3600n)
+  state.commitTx = hash
+  save()
+  await wallet.waitForTransactionReceipt({ hash })
+  log('Fulfillment commitment finalized.', { commitment: state.commitment, tx: hash })
+})
+$<HTMLButtonElement>('reveal').onclick = buttonEvent(async () => {
+  const { commitClient } = ready()
+  if (!state.payload || !state.salt || !state.schema || !state.commitTx) throw new Error('Commit step is incomplete.')
+  log('Confirm the fulfillment reveal in OKX.')
+  const result = await commitClient.doObligation(
+    { payload: state.payload, salt: state.salt, schema: state.schema }, escrowUid(),
+  )
+  state.fulfillmentUid = result.attested.uid
+  save()
+  log('Arkhai fulfillment attestation created.', { fulfillmentUid: state.fulfillmentUid, tx: result.hash })
+})
+$<HTMLButtonElement>('request').onclick = buttonEvent(async () => {
+  const { oracleClient, account } = ready()
+  if (!state.fulfillmentUid) throw new Error('Reveal step is incomplete.')
+  const escrow = await getAttestation(wallet, escrowUid(), contractAddresses.Sepolia)
+  const decoded = escrowClient.decodeObligation(escrow.data)
+  const oracle = (value('oracle') || account) as Address
+  log('Confirm the arbitration request in OKX.')
+  const hash = await oracleClient.requestArbitration(state.fulfillmentUid, oracle, decoded.demand)
+  await wallet.waitForTransactionReceipt({ hash })
+  state.demand = decoded.demand
+  save()
+  log('Arbitration requested from PatchCourt relay oracle.', { tx: hash })
+})
+$<HTMLButtonElement>('arbitrate').onclick = buttonEvent(async () => {
+  const { oracleClient } = ready()
+  if (!state.fulfillmentUid) throw new Error('Fulfillment UID is missing.')
+  const escrow = await getAttestation(wallet, escrowUid(), contractAddresses.Sepolia)
+  const decoded = escrowClient.decodeObligation(escrow.data)
+  const decision = $<HTMLSelectElement>('decision').value === 'true'
+  log(`Confirm the finalized ${decision ? 'APPROVED' : 'REJECTED'} decision in OKX.`)
+  const hash = await oracleClient.arbitrate(state.fulfillmentUid, decoded.demand, decision)
+  await wallet.waitForTransactionReceipt({ hash })
+  log('Oracle decision recorded on Arkhai.', { decision, tx: hash })
+})
+$<HTMLButtonElement>('collect').onclick = buttonEvent(async () => {
+  const { escrowClient } = ready()
+  if (!state.fulfillmentUid) throw new Error('Fulfillment UID is missing.')
+  log('Confirm escrow collection in OKX.')
+  const hash = await escrowClient.collect(escrowUid(), state.fulfillmentUid)
+  await wallet.waitForTransactionReceipt({ hash })
+  log('Approved escrow collected.', { tx: hash })
+})
+$<HTMLButtonElement>('clear').onclick = () => { logEl.textContent = 'Audit view cleared. Persistent flow IDs were kept.' }
+
+hydrate()
