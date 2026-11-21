@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "packageManager": "bun@1.3.7",
   "scripts": {
+    "build:web": "mkdir -p dist && bun build web/app.ts --outfile dist/app.js --target browser --minify && cp web/index.html web/styles.css dist/",
     "bridge": "bun run src/bridge.ts",
     "okx": "bun run scripts/okx-server.ts",
     "test:bridge": "bun test tests/bridge.test.ts",
