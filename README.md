@@ -2,6 +2,10 @@
 
 Public source: https://github.com/DTung1291/patchcourt
 
+Live demo: https://patchcourt.vercel.app
+
+Final 44-second video: https://patchcourt.vercel.app/patchcourt-demo-44s.mp4
+
 **AI-adjudicated Git escrow for Internet Court.** PatchCourt connects Arkhai
 Natural Language Agreement escrows to GenLayer consensus over immutable GitHub
 evidence.
@@ -67,6 +71,8 @@ bun run bridge -- --contract 0x6504cd96933D2C5E5d2cEFb9D6bcB4aAef2B2583 --case-i
 - `docs/architecture.md` — trust and data-flow boundaries.
 - `docs/threat-model.md` — attacks and fail-closed behavior.
 - `docs/demo-script.md` — polished 45-second video storyboard.
+- `video/patchcourt-demo-44s.mp4` — final 44-second mission video with
+  Internet Court, GenLayer, and Arkhai branding.
 - `deployments/studionet/release-manifest.json` — immutable source and finalized deployment evidence.
 
 ## Status
@@ -82,7 +88,19 @@ Case 1 reached a finalized 4/4 `APPROVED` verdict in round 2. The corrected
 oracle decision was recorded in Sepolia transaction `0xcec3da…b0ddf`, and the
 approved 1 PCT escrow was collected in `0x43f09f…82487`. The complete immutable
 execution record is in [`evidence/final-settlement.json`](evidence/final-settlement.json).
-Only the final 45-second video remains before mission submission.
+The final 44-second demo is available both in
+[`video/patchcourt-demo-44s.mp4`](video/patchcourt-demo-44s.mp4) and on the
+[live PatchCourt website](https://patchcourt.vercel.app). It shows the three
+required partner logos, the immutable evidence gate, GenLayer criterion-level
+consensus, the finalized 4/4 verdict, and the successful Sepolia settlement.
+
+## Mission evidence
+
+- Live interface: https://patchcourt.vercel.app
+- Final video: https://patchcourt.vercel.app/patchcourt-demo-44s.mp4
+- GenLayer contract: https://explorer-studio.genlayer.com/address/0x6504cd96933D2C5E5d2cEFb9D6bcB4aAef2B2583
+- GenLayer adjudication: https://explorer-studio.genlayer.com/tx/0x3a1e8a216cf728389508774039269538c1c2b8a3a704e6ecaf42cbd966e30ba1
+- Arkhai settlement: https://sepolia.etherscan.io/tx/0x43f09f4ca015b0f1625358967a83086fcb60e84cd6990a78e2d129b608082487
 
 ## Partner sources
 
