@@ -20,7 +20,7 @@
         <span>PatchCourt</span>
       </a>
       <div class="nav-links">
-        <a href="#how">How it works</a><a href="#demo">Demo</a><a href="#console">Console</a>
+        <a href="#audience">Who it’s for</a><a href="#how">How it works</a><a href="#demo">Demo</a><a href="#faq">FAQ</a>
       </div>
       <a class="nav-action" href="#console">Open console</a>
     </nav>
@@ -32,7 +32,7 @@
             <span class="line"><span data-line style="--i:0">GitHub evidence.</span></span>
             <span class="line"><span data-line style="--i:1">Judged on-chain.</span></span>
           </h1>
-          <p class="hero-lead" data-load style="--d:420ms">PatchCourt turns natural-language software milestones into commit-pinned GenLayer verdicts that settle Arkhai escrow.</p>
+          <p class="hero-lead" data-load style="--d:420ms">For clients and freelancers, PatchCourt turns software milestones into commit-pinned GenLayer verdicts that settle Arkhai escrow.</p>
           <div class="hero-actions" data-load style="--d:500ms">
             <a class="primary-button" href="#demo">Watch the 44s case</a>
             <a class="text-link" href="https://github.com/DTung1291/patchcourt" target="_blank" rel="noreferrer">Read the source <span aria-hidden="true">↗</span></a>
@@ -73,6 +73,25 @@
           </video>
           <figcaption><span>Internet Court Partner Demo Lab</span><span>44 seconds · sound on</span></figcaption>
         </figure>
+      </section>
+
+      <section class="audience-section" id="audience">
+        <div class="audience-intro">
+          <h2>Where “done” needs proof.</h2>
+          <p>PatchCourt gives both sides one acceptance process before work begins, then preserves the evidence and verdict after it ends.</p>
+        </div>
+        <div class="audience-pair">
+          <article>
+            <h3>For clients</h3>
+            <p>Define milestone criteria in plain language, lock the reward in escrow and release it only after validators approve the submitted evidence.</p>
+            <strong>Know why a delivery passed.</strong>
+          </article>
+          <article>
+            <h3>For freelancers</h3>
+            <p>Accept objective criteria, submit one immutable GitHub commit and receive an auditable decision instead of a subjective approval delay.</p>
+            <strong>Prove the exact work delivered.</strong>
+          </article>
+        </div>
       </section>
 
       <section class="story-section" id="how">
@@ -124,6 +143,35 @@
           <div><dt>Criteria</dt><dd>4 of 4 met</dd></div>
           <div><dt>Escrow collection</dt><dd><a href="https://sepolia.etherscan.io/tx/0x43f09f4ca015b0f1625358967a83086fcb60e84cd6990a78e2d129b608082487" target="_blank" rel="noreferrer">1 PCT · inspect tx ↗</a></dd></div>
         </dl>
+      </section>
+
+      <section class="faq-section" id="faq">
+        <div class="faq-heading">
+          <h2>Before you run a case.</h2>
+          <p>The short version of what is judged, what moves funds and what remains testnet-only.</p>
+        </div>
+        <div class="faq-list">
+          <details open>
+            <summary>What does PatchCourt verify?</summary>
+            <p>It evaluates public GitHub evidence against every acceptance criterion in the agreement. Each verification round stores an explicit APPROVED, REJECTED or INCONCLUSIVE result.</p>
+          </details>
+          <details>
+            <summary>Why must evidence use a full commit SHA?</summary>
+            <p>A branch such as main can change after submission. PatchCourt fetches content using the submitted 40-character SHA, rejects ref mismatches and makes GitHub error responses unable to produce approval.</p>
+          </details>
+          <details>
+            <summary>How does validator consensus work?</summary>
+            <p>GenLayer validators independently examine the evidence, return structured criterion-level judgments and compare the leader’s result before the contract finalizes the round.</p>
+          </details>
+          <details>
+            <summary>Does PatchCourt hold or transfer the funds?</summary>
+            <p>No. The Intelligent Contract records the verification decision. Arkhai holds the escrow and releases it only after the finalized result is relayed against the exact demand context.</p>
+          </details>
+          <details>
+            <summary>Is this ready for real payments?</summary>
+            <p>Not yet. The current reproducible demo runs with test assets on Ethereum Sepolia and a deployed GenLayer Studio contract. It is an integration prototype, not a mainnet payment product.</p>
+          </details>
+        </div>
       </section>
 
       <section class="console-section" id="console" data-ui>
