@@ -211,3 +211,62 @@ $<HTMLButtonElement>('collect').onclick = buttonEvent(async () => {
 $<HTMLButtonElement>('clear').onclick = () => { logEl.textContent = 'Audit view cleared. Persistent flow IDs were kept.' }
 
 hydrate()
+
+function initLanding() {
+  const reveal = document.querySelectorAll<HTMLElement>('[data-reveal]')
+  if ('IntersectionObserver' in window) {
+    const revealObserver = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue
+        entry.target.classList.add('is-in')
+        revealObserver.unobserve(entry.target)
+      }
+    }, { rootMargin: '0px 0px -12% 0px', threshold: 0.1 })
+    reveal.forEach(item => revealObserver.observe(item))
+
+    const storyItems = [...document.querySelectorAll<HTMLElement>('.story-item')]
+    const storyPictures = [...document.querySelectorAll<HTMLElement>('.story-pictures img')]
+    const storyCount = document.querySelector<HTMLElement>('.story-count')
+    const showStory = (index: number) => {
+      storyItems.forEach((item, itemIndex) => item.classList.toggle('is-active', itemIndex === index))
+      storyPictures.forEach((picture, pictureIndex) => picture.classList.toggle('is-on', pictureIndex === index))
+      if (storyCount) storyCount.textContent = `${index + 1} of ${storyItems.length} · ${storyItems[index]?.dataset.state ?? ''}`
+    }
+    const storyObserver = new IntersectionObserver((entries) => {
+      for (const entry of entries) if (entry.isIntersecting) showStory(storyItems.indexOf(entry.target as HTMLElement))
+    }, { rootMargin: '-45% 0px -45% 0px' })
+    storyItems.forEach(item => storyObserver.observe(item))
+    showStory(0)
+  } else {
+    reveal.forEach(item => item.classList.add('is-in'))
+  }
+
+  const evidenceForm = document.querySelector<HTMLFormElement>('#evidenceCheck')
+  const evidenceInput = document.querySelector<HTMLInputElement>('#evidenceInput')
+  const evidenceResult = document.querySelector<HTMLOutputElement>('#evidenceResult')
+  const checkEvidence = () => {
+    if (!evidenceInput || !evidenceResult) return
+    const submitted = evidenceInput.value.trim()
+    const fullSha = /(?:^|\/)([a-f0-9]{40})(?:\/|$)/i.exec(submitted)?.[1] ?? (/^[a-f0-9]{40}$/i.test(submitted) ? submitted : '')
+    const mutable = /(?:\/|^)(main|master|head)(?:\/|$)/i.test(submitted)
+    const httpError = /(?:^|\b)(404|403|500)(?:\b|$)/.test(submitted)
+    if (fullSha && !mutable && !httpError) {
+      evidenceResult.dataset.status = 'pass'
+      evidenceResult.innerHTML = '<strong>SHA MATCH</strong><span>Immutable ref is eligible for validator review.</span>'
+    } else {
+      evidenceResult.dataset.status = 'fail'
+      const reason = mutable ? 'Mutable GitHub refs cannot produce approval.' : httpError ? 'A non-success response fails closed.' : 'A full 40-character commit SHA is required.'
+      evidenceResult.innerHTML = `<strong>FAIL CLOSED</strong><span>${reason}</span>`
+    }
+  }
+  evidenceForm?.addEventListener('submit', (event) => { event.preventDefault(); checkEvidence() })
+  document.querySelectorAll<HTMLButtonElement>('[data-evidence]').forEach(button => {
+    button.addEventListener('click', () => {
+      if (!evidenceInput) return
+      evidenceInput.value = button.dataset.evidence ?? ''
+      checkEvidence()
+    })
+  })
+}
+
+initLanding()

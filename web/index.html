@@ -3,66 +3,149 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PatchCourt · OKX Relay Console</title>
+    <meta name="theme-color" content="#161c1a" />
+    <meta name="description" content="PatchCourt turns commit-pinned GitHub evidence into GenLayer validator verdicts that settle Arkhai escrow." />
+    <title>PatchCourt · Commit evidence, judged on-chain</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;700&display=swap" rel="stylesheet" />
+    <script>document.documentElement.classList.add('js')</script>
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
-    <main>
-      <header>
-        <div class="eyebrow">INTERNET COURT × GENLAYER × ARKHAI</div>
-        <h1>PatchCourt</h1>
-        <p>Commit-pinned evidence. Validator consensus. On-chain escrow settlement.</p>
-        <div class="network"><span></span> Ethereum Sepolia · OKX only</div>
+    <nav class="site-nav" aria-label="Primary navigation">
+      <a class="brand" href="#top" aria-label="PatchCourt home">
+        <img src="/assets/patchcourt-mark.svg" alt="" width="42" height="42" />
+        <span>PatchCourt</span>
+      </a>
+      <div class="nav-links">
+        <a href="#how">How it works</a><a href="#demo">Demo</a><a href="#console">Console</a>
+      </div>
+      <a class="nav-action" href="#console">Open console</a>
+    </nav>
+
+    <main id="top">
+      <header class="hero">
+        <div class="hero-copy">
+          <h1 class="hero-title lines">
+            <span class="line"><span data-line style="--i:0">GitHub evidence.</span></span>
+            <span class="line"><span data-line style="--i:1">Judged on-chain.</span></span>
+          </h1>
+          <p class="hero-lead" data-load style="--d:420ms">PatchCourt turns natural-language software milestones into commit-pinned GenLayer verdicts that settle Arkhai escrow.</p>
+          <div class="hero-actions" data-load style="--d:500ms">
+            <a class="primary-button" href="#demo">Watch the 44s case</a>
+            <a class="text-link" href="https://github.com/DTung1291/patchcourt" target="_blank" rel="noreferrer">Read the source <span aria-hidden="true">↗</span></a>
+          </div>
+        </div>
+
+        <aside class="hero-case" data-open aria-label="Finalized PatchCourt case summary">
+          <div class="case-topline"><span>Finalized case</span><strong>APPROVED</strong></div>
+          <div class="case-verdict">4 / 4</div>
+          <p>Acceptance criteria met by immutable evidence.</p>
+          <dl>
+            <div><dt>Evidence ref</dt><dd>38acf0c2…0027</dd></div>
+            <div><dt>Settlement</dt><dd>1 PCT collected</dd></div>
+            <div><dt>Network</dt><dd>Sepolia</dd></div>
+          </dl>
+        </aside>
       </header>
 
-      <section class="wallet">
-        <div><small>Signer</small><strong id="account">Not connected</strong></div>
-        <div><small>ETH</small><strong id="balance">—</strong></div>
-        <button id="connect">Connect OKX</button>
+      <section class="partners" aria-label="Built with Internet Court partners">
+        <p>One working case across</p>
+        <div class="partner-logos">
+          <img src="/assets/internet-court.svg" alt="Internet Court" />
+          <img src="/assets/genlayer.png" alt="GenLayer" />
+          <img src="/assets/arkhai.svg" alt="Arkhai" />
+          <span>OKX Wallet</span>
+        </div>
       </section>
 
-      <section class="grid">
-        <article>
-          <div class="step">01</div><h2>Test asset</h2>
-          <p>Deploy the official Alkahest mock ERC-20 fixture and mint its test supply to the signer.</p>
-          <label>Token address<input id="token" placeholder="Deploy or paste a Sepolia ERC-20" /></label>
-          <button id="deployToken" class="action">Deploy PCT token</button>
-        </article>
+      <section class="demo-section" id="demo">
+        <div class="section-intro">
+          <h2 data-lines>Watch one case travel from evidence to settlement.</h2>
+          <p>The complete reproducible flow, edited into 44 seconds. Every address, hash and verdict shown comes from the deployed demo.</p>
+        </div>
+        <figure class="demo-frame shutter" data-reveal>
+          <video controls preload="metadata" poster="/assets/demo-poster.png" playsinline>
+            <source src="/patchcourt-demo-44s.mp4" type="video/mp4" />
+            Your browser does not support the demo video.
+          </video>
+          <figcaption><span>Internet Court Partner Demo Lab</span><span>44 seconds · sound on</span></figcaption>
+        </figure>
+      </section>
 
-        <article>
-          <div class="step">02</div><h2>Natural-language escrow</h2>
-          <label>Oracle address<input id="oracle" placeholder="Defaults to connected OKX account" /></label>
-          <label>Demand<textarea id="demand" rows="5">Deliver immutable GitHub evidence for PatchCourt at the submitted full commit SHA. The evidence must document a reproducible Arkhai NLA escrow flow, GenLayer criterion-level consensus, fail-closed GitHub verification, and a finalized settlement instruction.</textarea></label>
-          <button id="createEscrow" class="action">Create 1 PCT escrow</button>
-          <output id="escrowUid">Escrow UID appears here</output>
-        </article>
+      <section class="story-section" id="how">
+        <div class="story-heading">
+          <p>How PatchCourt works</p>
+          <h2>A case file that can move value.</h2>
+          <p>Judgment stays nondeterministic. Funds, permissions and state transitions remain explicit and auditable.</p>
+        </div>
 
-        <article>
-          <div class="step">03</div><h2>Fulfillment</h2>
-          <label>Escrow UID<input id="fulfillEscrow" placeholder="0x…" /></label>
-          <label>Evidence statement<textarea id="fulfillment" rows="4">PatchCourt implementation and evidence are published at the immutable GitHub commit recorded in the GenLayer case.</textarea></label>
-          <div class="buttons">
-            <button id="commit" class="action">1 · Commit</button>
-            <button id="reveal" class="action">2 · Reveal</button>
-            <button id="request" class="action">3 · Request court</button>
+        <div class="case-story">
+          <figure class="story-media">
+            <div class="story-pictures">
+              <img src="/assets/case-escrow.png" alt="PatchCourt interface showing a one PCT Arkhai escrow" class="is-on" />
+              <img src="/assets/case-evidence.png" alt="PatchCourt immutable GitHub evidence verification" />
+              <img src="/assets/case-verdict.png" alt="PatchCourt GenLayer approved verdict with four criteria met" />
+              <img src="/assets/case-settlement.png" alt="PatchCourt approved escrow collection on Sepolia" />
+            </div>
+            <figcaption class="story-count" aria-live="polite">1 of 4 · ESCROWED</figcaption>
+          </figure>
+
+          <ol class="story-list">
+            <li class="story-item is-active" data-state="ESCROWED"><h3>Lock the reward in Arkhai</h3><p>The client creates a natural-language escrow with one PCT and names the PatchCourt relay oracle.</p></li>
+            <li class="story-item" data-state="SHA MATCH"><h3>Bind evidence to one commit</h3><p>Every accepted GitHub item must resolve through the submitted full SHA. Mutable refs, mismatches and HTTP errors fail closed.</p></li>
+            <li class="story-item" data-state="APPROVED 4/4"><h3>Ask validators to judge meaning</h3><p>GenLayer validators evaluate each acceptance criterion, compare structured reasoning and finalize one auditable verdict.</p></li>
+            <li class="story-item" data-state="COLLECTED"><h3>Relay only the final decision</h3><p>An approved result is recorded against the exact demand context. The freelancer can then collect the escrowed PCT.</p></li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="evidence-lab" aria-labelledby="evidence-title">
+        <div><h2 id="evidence-title">Try the evidence gate.</h2><p>This local preflight mirrors the contract’s immutable-ref policy. It never claims to be an on-chain verdict.</p></div>
+        <form class="evidence-tool" id="evidenceCheck">
+          <label for="evidenceInput">GitHub URL or full commit SHA</label>
+          <div class="evidence-input-row"><input id="evidenceInput" autocomplete="off" value="38acf0c25b785634607edce3bdefb7be34ff0027" /><button type="submit">Check evidence</button></div>
+          <output id="evidenceResult" class="evidence-result" data-status="pass"><strong>SHA MATCH</strong><span>Immutable ref is eligible for validator review.</span></output>
+          <div class="evidence-examples" aria-label="Evidence examples">
+            <button type="button" data-evidence="38acf0c25b785634607edce3bdefb7be34ff0027">Valid commit</button>
+            <button type="button" data-evidence="https://github.com/DTung1291/patchcourt/blob/main/README.md">Mutable main</button>
+            <button type="button" data-evidence="404">HTTP error</button>
           </div>
-          <output id="fulfillmentUid">Fulfillment UID appears here</output>
-        </article>
-
-        <article>
-          <div class="step">04</div><h2>Final relay</h2>
-          <p>Use only after PatchCourt returns a finalized arbitration instruction.</p>
-          <label>Decision<select id="decision"><option value="true">APPROVED</option><option value="false">REJECTED</option></select></label>
-          <button id="arbitrate" class="action">Record oracle decision</button>
-          <button id="collect">Collect approved escrow</button>
-        </article>
+        </form>
       </section>
 
-      <section class="audit">
-        <div><h2>Audit trail</h2><button id="clear">Clear</button></div>
-        <pre id="log">Ready. Connect OKX to begin.</pre>
+      <section class="proof-section">
+        <div class="proof-statement"><p>Finalized on public testnets</p><h2>Not a mockup. The accepted case is already inspectable.</h2></div>
+        <dl class="proof-list">
+          <div><dt>GenLayer contract</dt><dd><a href="https://explorer-studio.genlayer.com/address/0x6504cd96933D2C5E5d2cEFb9D6bcB4aAef2B2583" target="_blank" rel="noreferrer">0x6504…2583 ↗</a></dd></div>
+          <div><dt>Case result</dt><dd>Case 1 · round 2 · APPROVED</dd></div>
+          <div><dt>Criteria</dt><dd>4 of 4 met</dd></div>
+          <div><dt>Escrow collection</dt><dd><a href="https://sepolia.etherscan.io/tx/0x43f09f4ca015b0f1625358967a83086fcb60e84cd6990a78e2d129b608082487" target="_blank" rel="noreferrer">1 PCT · inspect tx ↗</a></dd></div>
+        </dl>
+      </section>
+
+      <section class="console-section" id="console" data-ui>
+        <div class="console-heading"><div><h2>Run the Sepolia flow.</h2><p>Connect OKX Wallet, create the demo escrow and reproduce the settlement path yourself.</p></div><div class="network"><span></span> Ethereum Sepolia · OKX only</div></div>
+        <section class="wallet"><div><small>Signer</small><strong id="account">Not connected</strong></div><div><small>ETH</small><strong id="balance">—</strong></div><button id="connect">Connect OKX</button></section>
+        <section class="console-grid">
+          <article><p class="step-label">Prepare test asset</p><h3>Deploy PCT</h3><p>Deploy the official Alkahest mock ERC-20 fixture and mint its test supply to the signer.</p><label>Token address<input id="token" placeholder="Deploy or paste a Sepolia ERC-20" /></label><button id="deployToken" class="action">Deploy PCT token</button></article>
+          <article><p class="step-label">Create demand</p><h3>Natural-language escrow</h3><label>Oracle address<input id="oracle" placeholder="Defaults to connected OKX account" /></label><label>Demand<textarea id="demand" rows="5">Deliver immutable GitHub evidence for PatchCourt at the submitted full commit SHA. The evidence must document a reproducible Arkhai NLA escrow flow, GenLayer criterion-level consensus, fail-closed GitHub verification, and a finalized settlement instruction.</textarea></label><button id="createEscrow" class="action">Create 1 PCT escrow</button><output id="escrowUid">Escrow UID appears here</output></article>
+          <article><p class="step-label">Submit evidence</p><h3>Commit and reveal</h3><label>Escrow UID<input id="fulfillEscrow" placeholder="0x…" /></label><label>Evidence statement<textarea id="fulfillment" rows="4">PatchCourt implementation and evidence are published at the immutable GitHub commit recorded in the GenLayer case.</textarea></label><div class="buttons"><button id="commit" class="action">Commit</button><button id="reveal" class="action">Reveal</button><button id="request" class="action">Request court</button></div><output id="fulfillmentUid">Fulfillment UID appears here</output></article>
+          <article><p class="step-label">Settle</p><h3>Final relay</h3><p>Use only after PatchCourt returns a finalized arbitration instruction.</p><label>Decision<select id="decision"><option value="true">APPROVED</option><option value="false">REJECTED</option></select></label><button id="arbitrate" class="action">Record oracle decision</button><button id="collect">Collect approved escrow</button></article>
+        </section>
+        <section class="audit"><div><h3>Audit trail</h3><button id="clear">Clear</button></div><pre id="log">Ready. Connect OKX to begin.</pre></section>
+      </section>
+
+      <section class="final-cta">
+        <img src="/assets/patchcourt-mark.svg" alt="" width="72" height="72" />
+        <h2>Make evidence carry consequences.</h2>
+        <p>Clone the contract, inspect the finalized case, or run the complete escrow flow with test assets.</p>
+        <div><a class="primary-button" href="https://github.com/DTung1291/patchcourt" target="_blank" rel="noreferrer">Open GitHub</a><a class="text-link" href="#console">Use the console</a></div>
       </section>
     </main>
+
+    <footer><a class="brand" href="#top"><img src="/assets/patchcourt-mark.svg" alt="" width="34" height="34" /><span>PatchCourt</span></a><p>Internet Court × GenLayer × Arkhai</p><a href="https://github.com/DTung1291/patchcourt" target="_blank" rel="noreferrer">Source ↗</a></footer>
     <script type="module" src="/app.js"></script>
   </body>
 </html>
