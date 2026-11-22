@@ -71,6 +71,8 @@ bun run bridge -- --contract 0x6504cd96933D2C5E5d2cEFb9D6bcB4aAef2B2583 --case-i
 - `docs/architecture.md` — trust and data-flow boundaries.
 - `docs/threat-model.md` — attacks and fail-closed behavior.
 - `docs/demo-script.md` — polished 45-second video storyboard.
+- `docs/project-submission.md` — ready-to-paste Project Explorer application fields.
+- `assets/patchcourt-logo-512.png` — Project Explorer upload logo.
 - `video/patchcourt-demo-44s.mp4` — final 44-second mission video with
   Internet Court, GenLayer, and Arkhai branding.
 - `deployments/studionet/release-manifest.json` — immutable source and finalized deployment evidence.
