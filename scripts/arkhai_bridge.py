@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
-"""Validate a PatchCourt instruction and relay it to Arkhai's NLA CLI.
+"""Offline schema validator for saved PatchCourt instruction fixtures.
 
-Dry-run is the default. --execute performs an on-chain Arkhai arbitration and
-therefore expects the configured NLA wallet to be the escrow's oracle.
+Live settlement uses the TypeScript bridge or browser, both of which fetch the
+instruction from GenLayer latest-final state instead of trusting a JSON file.
 """
 import argparse
 import json
 from pathlib import Path
 import re
-import shutil
-import subprocess
 import sys
 
 
@@ -56,42 +54,22 @@ def load_instruction(path):
     return validate_instruction(json.loads(raw))
 
 
-def execute(instruction):
-    if not shutil.which("nla"):
-        raise RuntimeError("nla CLI is not installed; run: npm install -g nla")
-    network = subprocess.run(
-        ["nla", "network"], capture_output=True, text=True, check=True
-    ).stdout.lower()
-    if instruction["network"] not in network:
-        raise RuntimeError(
-            f"nla is not configured for {instruction['network']}; switch it explicitly before retrying"
-        )
-    answer = "approve\n" if instruction["decision"] else "reject\n"
-    return subprocess.run(arbitration_command(instruction), input=answer, text=True, check=True)
-
-
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("instruction", help="JSON exported from get_arbitration_instruction, or - for stdin")
-    parser.add_argument(
-        "--execute", action="store_true",
-        help="submit the decision through the configured NLA oracle wallet",
-    )
+    parser.add_argument("instruction", help="saved instruction JSON, or - for stdin")
     args = parser.parse_args()
     try:
         instruction = load_instruction(args.instruction)
         command = arbitration_command(instruction)
         print(json.dumps({
             "validated": True,
-            "mode": "execute" if args.execute else "dry-run",
+            "mode": "offline-validation-only",
             "network": instruction["network"],
             "decision": instruction["outcome"],
             "escrow_uid": instruction["escrow_uid"],
             "command": command,
         }, indent=2))
-        if args.execute:
-            execute(instruction)
-    except (OSError, ValueError, RuntimeError, subprocess.CalledProcessError) as exc:
+    except (OSError, ValueError) as exc:
         print(f"PatchCourt bridge error: {exc}", file=sys.stderr)
         return 1
     return 0

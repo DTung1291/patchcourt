@@ -2,10 +2,11 @@ import { contractAddresses } from '../node_modules/alkahest-ts/sdks/ts/src/confi
 import { makeErc20DefaultEscrowClient } from '../node_modules/alkahest-ts/sdks/ts/src/clients/obligations/erc20/escrow/default'
 import { pickErc20Addresses } from '../node_modules/alkahest-ts/sdks/ts/src/clients/obligations/erc20'
 import { makeCommitRevealObligationClient, pickCommitRevealAddresses } from '../node_modules/alkahest-ts/sdks/ts/src/clients/obligations/commitReveal'
-import { makeTrustedOracleArbiterClient } from '../node_modules/alkahest-ts/sdks/ts/src/clients/arbiters/general/trustedOracle'
+import { decodeDemand as decodeOracleDemand, makeTrustedOracleArbiterClient } from '../node_modules/alkahest-ts/sdks/ts/src/clients/arbiters/general/trustedOracle'
 import { getAttestation } from '../node_modules/alkahest-ts/sdks/ts/src/utils'
 import MockERC20Permit from '../node_modules/alkahest-ts/sdks/ts/tests/fixtures/MockERC20Permit.json'
 import { oracleDecisionContext } from '../src/arkhai-demand'
+import { assertSettlementContext, readLatestFinalInstruction, type Instruction } from '../src/settlement'
 import {
   createWalletClient, custom, encodeAbiParameters, formatEther, keccak256,
   parseAbi, parseAbiParameters, publicActions, toHex, type Address, type Hex,
@@ -16,11 +17,13 @@ type Provider = { request(args: { method: string; params?: unknown[] | object })
 type FlowState = {
   token?: Address; escrowUid?: Hex; fulfillmentUid?: Hex; commitment?: Hex;
   salt?: Hex; schema?: Hex; payload?: Hex; commitTx?: Hex; demand?: Hex;
+  demandContext?: Hex; arbitrationRequested?: boolean;
 }
 
 declare global { interface Window { okxwallet?: Provider; ethereum?: Provider & { providers?: Provider[] } } }
 
 const STORAGE = 'patchcourt-okx-sepolia-v1'
+const PATCHCOURT_CONTRACT = '0x6504cd96933D2C5E5d2cEFb9D6bcB4aAef2B2583'
 const state: FlowState = JSON.parse(localStorage.getItem(STORAGE) ?? '{}')
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T
 const logEl = $<HTMLPreElement>('log')
@@ -82,8 +85,51 @@ function value(id: string) {
   return result
 }
 function escrowUid(): Hex { return value('fulfillEscrow') as Hex }
+function caseId(): number {
+  const parsed = Number(value('caseId'))
+  if (!Number.isSafeInteger(parsed) || parsed < 1) throw new Error('caseId must be a positive integer.')
+  return parsed
+}
 function buttonEvent(task: () => Promise<void>) {
   return (event: MouseEvent) => busy(event.currentTarget as HTMLButtonElement, task)
+}
+
+async function matchingLatestFinalInstruction(): Promise<{ instruction: Instruction; demandContext: Hex }> {
+  const { wallet, account } = ready()
+  if (!state.fulfillmentUid || !state.demand || !state.demandContext || !state.arbitrationRequested) {
+    throw new Error('Request arbitration for this fulfillment before settlement.')
+  }
+  if (await wallet.getChainId() !== sepolia.id) throw new Error('OKX must remain on Ethereum Sepolia.')
+
+  const instruction = await readLatestFinalInstruction(PATCHCOURT_CONTRACT, caseId())
+  const currentEscrowUid = escrowUid()
+  const [escrow, fulfillment] = await Promise.all([
+    getAttestation(wallet, currentEscrowUid, contractAddresses.Sepolia),
+    getAttestation(wallet, state.fulfillmentUid, contractAddresses.Sepolia),
+  ])
+  const decodedEscrow = escrowClient.decodeObligation(escrow.data)
+  const liveDemand = decodedEscrow.demand as Hex
+  const liveDemandContext = oracleDecisionContext(liveDemand)
+  const demand = decodeOracleDemand(liveDemand)
+
+  assertSettlementContext(instruction, {
+    network: 'sepolia',
+    escrowUid: currentEscrowUid,
+    escrowAttestationUid: escrow.uid,
+    fulfillmentUid: state.fulfillmentUid,
+    fulfillmentAttestationUid: fulfillment.uid,
+    fulfillmentRefUid: fulfillment.refUID,
+    escrowRevocationTime: escrow.revocationTime,
+    fulfillmentRevocationTime: fulfillment.revocationTime,
+    liveDemand,
+    requestedDemand: state.demand,
+    liveDemandContext,
+    requestedDemandContext: state.demandContext,
+    demandOracle: demand.oracle,
+    connectedOracle: account,
+  })
+  $<HTMLElement>('instruction').textContent = `Case ${instruction.case_id} · round ${instruction.round} · ${instruction.outcome}`
+  return { instruction, demandContext: liveDemandContext }
 }
 
 $<HTMLButtonElement>('connect').onclick = buttonEvent(connect)
@@ -116,6 +162,10 @@ $<HTMLButtonElement>('createEscrow').onclick = buttonEvent(async () => {
   )
   const outer = oracleClient.encodeDemand({ oracle, data: inner })
   state.demand = outer
+  state.demandContext = inner
+  state.arbitrationRequested = false
+  delete state.escrowUid
+  delete state.fulfillmentUid
   const amount = 10n ** 18n
   const spender = contractAddresses.Sepolia.erc20EscrowObligation
   const erc20 = parseAbi([
@@ -169,6 +219,7 @@ $<HTMLButtonElement>('reveal').onclick = buttonEvent(async () => {
     { payload: state.payload, salt: state.salt, schema: state.schema }, escrowUid(),
   )
   state.fulfillmentUid = result.attested.uid
+  state.arbitrationRequested = false
   save()
   log('Arkhai fulfillment attestation created.', { fulfillmentUid: state.fulfillmentUid, tx: result.hash })
 })
@@ -182,29 +233,29 @@ $<HTMLButtonElement>('request').onclick = buttonEvent(async () => {
   const hash = await oracleClient.requestArbitration(state.fulfillmentUid, oracle, decoded.demand)
   await wallet.waitForTransactionReceipt({ hash })
   state.demand = decoded.demand
+  state.demandContext = oracleDecisionContext(decoded.demand)
+  state.arbitrationRequested = true
   save()
   log('Arbitration requested from PatchCourt relay oracle.', { tx: hash })
 })
+$<HTMLButtonElement>('loadInstruction').onclick = buttonEvent(async () => {
+  const { instruction } = await matchingLatestFinalInstruction()
+  log('Matching latest-final PatchCourt instruction verified.', instruction)
+})
 $<HTMLButtonElement>('arbitrate').onclick = buttonEvent(async () => {
   const { oracleClient } = ready()
-  if (!state.fulfillmentUid) throw new Error('Fulfillment UID is missing.')
-  const escrow = await getAttestation(wallet, escrowUid(), contractAddresses.Sepolia)
-  const decoded = escrowClient.decodeObligation(escrow.data)
-  const decision = $<HTMLSelectElement>('decision').value === 'true'
-  // TrustedOracleArbiter.check decodes the escrow's outer DemandData and
-  // hashes its inner `data` field. Manual arbitration must therefore record
-  // the decision against that same inner context, not the encoded wrapper.
-  const innerDemand = oracleDecisionContext(decoded.demand)
-  log(`Confirm the finalized ${decision ? 'APPROVED' : 'REJECTED'} decision in OKX.`)
-  const hash = await oracleClient.arbitrate(state.fulfillmentUid, innerDemand, decision)
+  const { instruction, demandContext } = await matchingLatestFinalInstruction()
+  log(`Confirm the latest-final ${instruction.outcome} instruction in OKX.`)
+  const hash = await oracleClient.arbitrate(instruction.fulfillment_uid, demandContext, instruction.decision)
   await wallet.waitForTransactionReceipt({ hash })
-  log('Oracle decision recorded on Arkhai.', { decision, tx: hash })
+  log('PatchCourt instruction recorded on Arkhai.', { instruction, tx: hash })
 })
 $<HTMLButtonElement>('collect').onclick = buttonEvent(async () => {
   const { escrowClient } = ready()
-  if (!state.fulfillmentUid) throw new Error('Fulfillment UID is missing.')
+  const { instruction } = await matchingLatestFinalInstruction()
+  if (!instruction.decision) throw new Error('A REJECTED instruction cannot collect escrow.')
   log('Confirm escrow collection in OKX.')
-  const hash = await escrowClient.collect(escrowUid(), state.fulfillmentUid)
+  const hash = await escrowClient.collect(instruction.escrow_uid, instruction.fulfillment_uid)
   await wallet.waitForTransactionReceipt({ hash })
   log('Approved escrow collected.', { tx: hash })
 })

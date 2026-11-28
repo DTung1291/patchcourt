@@ -64,7 +64,7 @@ Enter these as separate ordered instructions in the application.
 
 ### Reproduce the escrow path
 
-> Follow the console in order: deploy the PCT test token, create the 1 PCT escrow, commit and reveal the fulfillment, request court arbitration, record the finalized decision, and collect the approved escrow. Confirm each testnet transaction in OKX Wallet.
+> Follow the console in order: deploy the PCT test token, create the 1 PCT escrow, commit and reveal the fulfillment, and request court arbitration. Create and finalize the matching PatchCourt case, enter its case ID, then verify and relay its latest-final instruction. The browser must reject a case whose network, escrow UID, fulfillment UID, fulfillment refUID, or demand context differs. Confirm each testnet transaction in OKX Wallet.
 
 ### Verify the public evidence
 

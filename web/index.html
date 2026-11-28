@@ -67,7 +67,7 @@
           <p>The complete reproducible flow, edited into 44 seconds. Every address, hash and verdict shown comes from the deployed demo.</p>
         </div>
         <figure class="demo-frame shutter" data-reveal>
-          <video controls preload="metadata" poster="/assets/demo-poster.png" playsinline>
+          <video controls preload="metadata" poster="/assets/case-verdict.png" playsinline>
             <source src="/patchcourt-demo-44s.mp4" type="video/mp4" />
             Your browser does not support the demo video.
           </video>
@@ -181,7 +181,7 @@
           <article><p class="step-label">Prepare test asset</p><h3>Deploy PCT</h3><p>Deploy the official Alkahest mock ERC-20 fixture and mint its test supply to the signer.</p><label>Token address<input id="token" placeholder="Deploy or paste a Sepolia ERC-20" /></label><button id="deployToken" class="action">Deploy PCT token</button></article>
           <article><p class="step-label">Create demand</p><h3>Natural-language escrow</h3><label>Oracle address<input id="oracle" placeholder="Defaults to connected OKX account" /></label><label>Demand<textarea id="demand" rows="5">Deliver immutable GitHub evidence for PatchCourt at the submitted full commit SHA. The evidence must document a reproducible Arkhai NLA escrow flow, GenLayer criterion-level consensus, fail-closed GitHub verification, and a finalized settlement instruction.</textarea></label><button id="createEscrow" class="action">Create 1 PCT escrow</button><output id="escrowUid">Escrow UID appears here</output></article>
           <article><p class="step-label">Submit evidence</p><h3>Commit and reveal</h3><label>Escrow UID<input id="fulfillEscrow" placeholder="0x…" /></label><label>Evidence statement<textarea id="fulfillment" rows="4">PatchCourt implementation and evidence are published at the immutable GitHub commit recorded in the GenLayer case.</textarea></label><div class="buttons"><button id="commit" class="action">Commit</button><button id="reveal" class="action">Reveal</button><button id="request" class="action">Request court</button></div><output id="fulfillmentUid">Fulfillment UID appears here</output></article>
-          <article><p class="step-label">Settle</p><h3>Final relay</h3><p>Use only after PatchCourt returns a finalized arbitration instruction.</p><label>Decision<select id="decision"><option value="true">APPROVED</option><option value="false">REJECTED</option></select></label><button id="arbitrate" class="action">Record oracle decision</button><button id="collect">Collect approved escrow</button></article>
+          <article><p class="step-label">Settle</p><h3>Final relay</h3><p>Enter the PatchCourt case created for these exact UIDs. The browser reads StudioNet latest-final state and rejects non-final or mismatched instructions.</p><label>PatchCourt case ID<input id="caseId" inputmode="numeric" min="1" placeholder="1" /></label><output id="instruction">No instruction verified</output><button id="loadInstruction">Verify latest-final instruction</button><button id="arbitrate" class="action">Relay verified instruction</button><button id="collect">Collect approved escrow</button></article>
         </section>
         <section class="audit"><div><h3>Audit trail</h3><button id="clear">Clear</button></div><pre id="log">Ready. Connect OKX to begin.</pre></section>
       </section>

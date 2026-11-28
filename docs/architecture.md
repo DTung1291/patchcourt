@@ -15,7 +15,12 @@ PatchCourt on GenLayer StudioNet
 get_arbitration_instruction(case_id)
              |
              v
-PatchCourt bridge -> Arkhai NLA oracle -> EAS arbitration attestation
+Browser / PatchCourt bridge
+  - reads GenLayer latest-final state
+  - matches network + escrow + fulfillment + demand context
+             |
+             v
+Arkhai NLA oracle -> EAS arbitration attestation
              |
              v
 Arkhai escrow collect / refund path
@@ -35,3 +40,8 @@ PatchCourt never holds funds. Arkhai owns the escrow, fulfillment and settlement
 attestations. PatchCourt owns the evidence policy and semantic verdict. Their
 immutable UIDs are stored together before adjudication so the bridge cannot
 silently substitute another escrow or fulfillment.
+
+The browser re-runs those checks immediately before both arbitration and
+collection. Its verdict is not a user input: it is the boolean in the matching
+latest-final instruction. The trusted oracle key remains a documented trust
+boundary; see [`threat-model.md`](threat-model.md).

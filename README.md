@@ -47,10 +47,13 @@ bun run okx
 ```
 
 The numbered interface deploys an Alkahest test ERC-20, creates the NLA escrow,
-runs commit/reveal fulfillment, requests arbitration, records the finalized
-PatchCourt decision and collects an approved escrow. Flow identifiers and the
-random reveal salt stay in browser local storage so a wallet reload can resume
-safely.
+runs commit/reveal fulfillment and requests arbitration. For settlement, enter
+the matching PatchCourt case ID. The browser reads StudioNet latest-final state,
+re-fetches the Sepolia attestations, and verifies the network, both UIDs,
+fulfillment `refUID`, demand context and oracle wallet before it exposes the
+wallet confirmation. There is no manual verdict selector. Flow identifiers and
+the random reveal salt stay in browser local storage so a wallet reload can
+resume safely.
 
 The bridge is dry-run by default. Live relay requires the official Arkhai `nla`
 CLI and an oracle wallet:
@@ -65,7 +68,9 @@ bun run bridge -- --contract 0x6504cd96933D2C5E5d2cEFb9D6bcB4aAef2B2583 --case-i
 ## Repository map
 
 - `contracts/patchcourt.py` — deployable GenLayer Intelligent Contract.
-- `scripts/arkhai_bridge.py` — strict PatchCourt-to-Arkhai relay.
+- `src/settlement.ts` — shared latest-final instruction and live-flow guards.
+- `src/bridge.ts` — latest-final PatchCourt-to-Arkhai CLI relay.
+- `scripts/arkhai_bridge.py` — offline schema validator for saved test fixtures.
 - `skills/patchcourt/SKILL.md` — reproducible agent interface.
 - `tests/` — state, consensus, evidence and bridge guard tests.
 - `docs/architecture.md` — trust and data-flow boundaries.
